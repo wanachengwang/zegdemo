@@ -104,6 +104,7 @@ public class World : MonoBehaviour
 			terrain = Instantiate(terrainPerfab) as UnityEngine.GameObject;
 
         Vector3 terPos = terrain.transform.position;
+        /*
         if (KBEngineApp.app.spaceID == 1) {
             terPos.y = 200;
         } else if(KBEngineApp.app.spaceID == 2) {
@@ -111,6 +112,7 @@ public class World : MonoBehaviour
         } else {
             terPos.y = 0;
         }
+        */
         terrain.transform.position = terPos;
 
         if (player)
