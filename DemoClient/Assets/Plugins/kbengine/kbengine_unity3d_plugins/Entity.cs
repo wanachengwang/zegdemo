@@ -194,7 +194,7 @@
 				return;
 			}
 
-            Debug.LogError("[BaseCall]:"+ methodname);
+            Dbg.CUSTOM_MSG("[BaseCall]:"+ methodname);
 			baseMailbox.newMail();
 			baseMailbox.bundle.writeUint16(methodID);
 			
@@ -258,7 +258,7 @@
 				return;
 			}
 
-            Debug.LogError("[CellCall]:" + methodname);
+            Dbg.CUSTOM_MSG("[CellCall]:" + methodname);
             cellMailbox.newMail();
 			cellMailbox.bundle.writeUint16(methodID);
 				

@@ -37,7 +37,7 @@ public class UI : MonoBehaviour
 	void Start () 
 	{
 		installEvents();
-		Application.LoadLevel("login");
+		UnityEngine.SceneManagement.SceneManager.LoadScene("login");
 	}
 
 	void installEvents()
@@ -118,7 +118,7 @@ public class UI : MonoBehaviour
         		info("Please wait...(请稍后...)");
         		
 				KBEngine.Event.fireIn("selectAvatarGame", selAvatarDBID);
-				Application.LoadLevel("world");
+				UnityEngine.SceneManagement.SceneManager.LoadScene("world");
 				ui_state = 2;
 			}
         }
@@ -391,13 +391,13 @@ public class UI : MonoBehaviour
 		info("login is successfully!(登陆成功!)");
 		ui_state = 1;
 
-		Application.LoadLevel("selavatars");
+		UnityEngine.SceneManagement.SceneManager.LoadScene("selavatars");
 	}
 
 	public void onKicked(UInt16 failedcode)
 	{
 		err("kick, disconnect!, reason=" + KBEngineApp.app.serverErr(failedcode));
-		Application.LoadLevel("login");
+		UnityEngine.SceneManagement.SceneManager.LoadScene("login");
 		ui_state = 0;
 	}
 

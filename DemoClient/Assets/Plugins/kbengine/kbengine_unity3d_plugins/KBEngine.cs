@@ -1108,7 +1108,7 @@
 				
 				System.Reflection.MethodInfo handler = null;
 				bool isClientMethod = msgname.Contains("Client_");
-                //Debug.LogError(currserver + "ImportClientMessages: " + msgname);
+                //Dbg.CUSTOM_MSG(currserver + "ImportClientMessages: " + msgname);
 				
 				if(isClientMethod)
 				{
@@ -1420,7 +1420,7 @@
 		*/
 		public void Client_onCreatedProxies(UInt64 rndUUID, Int32 eid, string entityType)
 		{
-			Debug.LogError("[Client_onCreatedProxies]: eid(" + eid + "), entityType(" + entityType + ")!");
+			Dbg.CUSTOM_MSG("[Client_onCreatedProxies]: eid(" + eid + "), entityType(" + entityType + ")!");
 			
 			entity_uuid = rndUUID;
 			entity_id = eid;
@@ -1545,7 +1545,7 @@
 			
 			if(!entities.TryGetValue(eid, out entity))
 			{
-                Debug.LogError("[Client_onUpdatePropertys]:" + eid);
+                Dbg.CUSTOM_MSG("[Client_onUpdatePropertys]:" + eid);
 				MemoryStream entityMessage = null;
 				if(_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage))
 				{
@@ -1560,7 +1560,7 @@
 				_bufferedCreateEntityMessage[eid] = stream1;
 				return;
 			}
-            Debug.LogError("[Client_onUpdatePropertys]:" + eid + entity.className);
+            Dbg.CUSTOM_MSG("[Client_onUpdatePropertys]:" + eid + entity.className);
             ScriptModule sm = EntityDef.moduledefs[entity.className];
 			Dictionary<UInt16, Property> pdatas = sm.idpropertys;
 
@@ -1688,7 +1688,7 @@
 				isOnGround = stream.readInt8();
 			
 			string entityType = EntityDef.idmoduledefs[uentityType].name;
-            Debug.LogError("[Client_onEntityEnterWorld]:" + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
+            Dbg.CUSTOM_MSG("[Client_onEntityEnterWorld]:" + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
             
             Entity entity = null;
 			
@@ -1829,7 +1829,7 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onEntityEnterSpace: entity(" + eid + ") not found!");
 				return;
 			}
-            Debug.LogError("[Client_onEntityEnterSpace]: " + eid + entity.className);
+            Dbg.CUSTOM_MSG("[Client_onEntityEnterSpace]: " + eid + entity.className);
             entity.isOnGround = isOnGround > 0;
 			_entityServerPos = entity.position;
 			entity.enterSpace();
@@ -2095,7 +2095,7 @@
 				Client_setSpaceData(spaceID, key, val);
 			}
 			
-			Debug.LogError("[Client_initSpaceData]: spaceID(" + spaceID + "), size(" + _spacedatas.Count + ")!");
+			Dbg.CUSTOM_MSG("[Client_initSpaceData]: spaceID(" + spaceID + "), size(" + _spacedatas.Count + ")!");
 		}
 
 		/*
@@ -2148,7 +2148,7 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onEntityDestroyed: entity(" + eid + ") not found!");
 				return;
 			}
-            Debug.LogError("[Client_onEntityDestroyed]:"+ eid + entity.className);
+            Dbg.CUSTOM_MSG("[Client_onEntityDestroyed]:"+ eid + entity.className);
 			if(entity.inWorld)
 			{
 				if(entity_id == eid)
@@ -2239,7 +2239,7 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onSetEntityPosAndDir: entity(" + eid + ") not found!");
 				return;
 			}
-            Debug.LogError("[Client_onSetEntityPosAndDir]: " + eid + entity.className);
+            Dbg.CUSTOM_MSG("[Client_onSetEntityPosAndDir]: " + eid + entity.className);
             entity.position.x = stream.readFloat();
 			entity.position.y = stream.readFloat();
 			entity.position.z = stream.readFloat();

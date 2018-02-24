@@ -114,7 +114,7 @@
 		*/
 		public void handleMessage(MemoryStream msgstream)
 		{
-            Debug.LogError("[MsgRecv]:"+KBEngineApp.app.currserver + ": " + name + ":" + handler);
+            Dbg.CUSTOM_MSG("[MsgRecv]:"+KBEngineApp.app.currserver + ": " + name + ":" + handler);
 			if(argtypes.Length <= 0)
 			{
 				if(argsType < 0)

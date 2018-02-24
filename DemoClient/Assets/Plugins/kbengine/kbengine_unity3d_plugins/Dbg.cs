@@ -18,6 +18,8 @@ namespace KBEngine
 
 	public class Dbg 
 	{
+		static public string customLogColorPrefix = "<color=red>";
+		static public string customLogColorPostfix = "</color>";
 		static public DEBUGLEVEL debugLevel = DEBUGLEVEL.DEBUG;
 
 #if UNITY_EDITOR
@@ -51,6 +53,12 @@ namespace KBEngine
 		{
 			if (DEBUGLEVEL.ERROR >= debugLevel)
 				Debug.LogError(getHead() + s);
+		}
+
+		public static void CUSTOM_MSG(object s)
+		{
+			if (DEBUGLEVEL.WARNING >= debugLevel)
+				Debug.LogWarning(customLogColorPrefix + s + customLogColorPostfix);
 		}
 
 		public static void profileStart(string name)
