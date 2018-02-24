@@ -57,8 +57,8 @@ namespace KBEngine
 
 		public static void CUSTOM_MSG(object s)
 		{
-			if (DEBUGLEVEL.WARNING >= debugLevel)
-				Debug.LogWarning(customLogColorPrefix + s + customLogColorPostfix);
+			//if (DEBUGLEVEL.WARNING >= debugLevel)
+			//	Debug.LogWarning(customLogColorPrefix + s + customLogColorPostfix);
 		}
 
 		public static void profileStart(string name)

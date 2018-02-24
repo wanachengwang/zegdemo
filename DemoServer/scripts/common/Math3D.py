@@ -2,7 +2,7 @@
 import sys
 import KBEngine
 
-“”“
+"""
 // 获得2个圆相交百分比，已知圆A半径为r1，圆B半径为r2，两圆圆心距离为d，返回两圆相交部分面积与圆A面积的占比
 inline double CalcCircularIntersectPercentage(double r1, double r2, double d)
 {
@@ -41,13 +41,11 @@ inline double CalcCircularIntersectPercentage(double r1, double r2, double d)
 	double result = (sec1 + sec2 - sq) / s1;
 	return result;
 }
-“”“
-
+"""
+"""
 class Sector( Area ):
 	def __init__( self, parent ):
-		"""
-		构造函数。
-		"""
+		#构造函数。
 		Area.__init__( self, parent )
 		self.radius = 2.0
 		self.angle = 120 / 2
@@ -57,9 +55,7 @@ class Sector( Area ):
 		self.angle = dictDat["value2"] / 2
 
 	def inArea( self, caster, entity, transmitDir ):
-		"""
-		实体是否在扇形范围内
-		"""
+		#实体是否在扇形范围内
 		srcPos = Math.Vector3( caster.position )
 		srcPos.y = 0
 
@@ -86,3 +82,4 @@ class Sector( Area ):
 			return True
 			
 		return False
+"""
