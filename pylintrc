@@ -1,0 +1,2 @@
+[MASTER]
+init-hook='import sys; sys.path.append("DemoServer/helperKBEngine"); sys.path.append(0, "DemoServer/scripts/common")'
