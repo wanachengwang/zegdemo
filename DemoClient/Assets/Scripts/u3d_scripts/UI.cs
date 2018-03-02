@@ -235,15 +235,9 @@ public class UI : MonoBehaviour
 				KBEngine.Event.fireIn("relive", (Byte)1);		        	
 			}
 		}
-		
-		UnityEngine.GameObject obj = UnityEngine.GameObject.Find("player(Clone)");
-		if(obj != null)
-		{
-			GUI.Label(new Rect((Screen.width / 2) - 100, 20, 400, 100), "id=" + KBEngineApp.app.entity_id + ", position=" + obj.transform.position.ToString()); 
-		}
-
-        strSpaceId = GUI.TextField(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 50, 80, 30), strSpaceId);
-        if (GUI.Button(new Rect(Screen.width / 2 - 0, Screen.height / 2 + 50, 100, 30), "传送")) {
+        
+        strSpaceId = GUI.TextField(new Rect(80, 130, 45, 24), strSpaceId);
+        if (GUI.Button(new Rect(130, 130, 60, 24), "传送")) {
             byte spaceId;
             if(byte.TryParse(strSpaceId, out spaceId)) {
                 KBEngine.Avatar avatar = (KBEngine.Avatar)KBEngineApp.app.player();
@@ -252,7 +246,16 @@ public class UI : MonoBehaviour
                 }
             }
         }
-	}
+
+        UnityEngine.GameObject obj = UnityEngine.GameObject.Find("player(Clone)");
+        if (obj != null)
+        {
+            GUI.Label(new Rect(240, 20, 400, 100), "id=" + KBEngineApp.app.entity_id + ", position=" + obj.transform.position.ToString());
+            if (GUI.Button(new Rect(80, 160, 100, 24), "技能0"))
+            {
+            }
+        }
+    }
 
     void OnGUI()  
     {  
