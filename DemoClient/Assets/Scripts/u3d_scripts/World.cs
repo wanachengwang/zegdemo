@@ -70,7 +70,7 @@ public class World : MonoBehaviour
         }
 		else if (Input.GetMouseButton (0))     
 		{   
-			// 射线选择，攻击
+			// 射线选择，攻击，从名字取得EntityID
 			if(Camera.main)
 			{
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);   
@@ -82,8 +82,7 @@ public class World : MonoBehaviour
 					UnityEngine.GameObject gameObj = hit.collider.gameObject;
 					if(gameObj.name.IndexOf("terrain") == -1)
 					{
-						string[] s = gameObj.name.Split(new char[]{'_' });
-						
+						string[] s = gameObj.name.Split(new char[]{'_' });						
 						if(s.Length > 0)
 						{
 							int targetEntityID = Convert.ToInt32(s[s.Length - 1]);
