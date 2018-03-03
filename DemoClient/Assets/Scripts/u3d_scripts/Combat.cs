@@ -7,9 +7,9 @@ using System.Text;
 public class Combat {
     
 	static GameObject _fireball;
-	public static void CastFireball(GameObject caster, float sclFire, float velFire){
+	public static void CastFireball(GameObject caster, float sclFire = 1.0f, float velFire = 1.0f){
 		RaycastHit hit; 
-		UnityEngine.GameObject tarGo;
+		UnityEngine.GameObject tarGo = null;
 		if (Physics.SphereCast (caster.transform.position, sclFire, caster.transform.forward, out hit)) {
 			tarGo = hit.collider.gameObject;
 			if(tarGo.name.IndexOf("terrain") == -1)
@@ -23,9 +23,10 @@ public class Combat {
 			}
 		}
 
+        // ╠Мож
 		GameObject goFireball = GameObject.Instantiate (_fireball);
 		Fireball fb = goFireball.GetComponent<Fireball> ();
-		//fb.Reset (srcPos, tarPos, time);
+		fb.Reset (caster.transform.position, tarGo ? tarGo.transform : null, 10);
 	}
 
 }
