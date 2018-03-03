@@ -63,6 +63,7 @@ public class World : MonoBehaviour
 	void Update () 
 	{
 		createPlayer();
+		#if false
         if (Input.GetKeyUp(KeyCode.Space))
         {
 			Debug.Log("KeyCode.Space");
@@ -91,7 +92,14 @@ public class World : MonoBehaviour
 					}
 				}  
 			}
-		}    
+		}  
+		#else
+		if(player){
+			if(Input.GetKey(KeyCode.Q)){
+				Combat.CastFireball(player);
+			}
+		}
+		#endif
 	}
 
     float[] _yPos = { 0, 200, 180,};
