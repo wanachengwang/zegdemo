@@ -3,32 +3,26 @@ using System;
 
 public class Fireball : MonoBehaviour
 {
-	Vector3 _forward;
     Transform _tarTrans;
 	float _vel;
-    float _lifeTime;
+    float _maxDist;
+	Vector3 _forward;
 
 	public void Reset(Vector3 curPos, Transform tarTrans, float vel){
 		transform.position = curPos;
         _tarTrans = tarTrans;
         _vel = vel;
-	}
-    public void Reset(Vector3 curPos, Vector3 forward, float vel)
+    }
+    public void Reset(Vector3 curPos, Vector3 forward, float maxDist, float vel)
     {
         transform.position = curPos;
         _forward = forward;
+        _maxDist = maxDist;
         _tarTrans = null;
         _vel = vel;
     }
 
-    void FixedUpdate(){
-        _lifeTime -= Time.fixedDeltaTime;
-        if(_lifeTime < 0)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
+    void Update(){        
         if (_tarTrans)
         {
             Vector3 offset = _tarTrans.position - transform.position;
@@ -41,7 +35,15 @@ public class Fireball : MonoBehaviour
         }
         else
         {
-            transform.position += _forward * _vel * Time.fixedDeltaTime;
+            float deltaDist = Time.deltaTime * _vel;
+            _maxDist -= deltaDist;
+            if (_maxDist < 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            transform.position += _forward * deltaDist;
         }        
     }
 }

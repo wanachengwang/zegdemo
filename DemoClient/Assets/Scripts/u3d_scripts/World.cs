@@ -92,13 +92,7 @@ public class World : MonoBehaviour
 					}
 				}  
 			}
-		}  
-		#else
-		if(player){
-			if(Input.GetKey(KeyCode.Q)){
-				Combat.CastFireball(player);
-			}
-		}
+		}  		
 		#endif
 	}
 
@@ -325,6 +319,11 @@ public class World : MonoBehaviour
 	
 	public void recvDamage(KBEngine.Entity entity, KBEngine.Entity attacker, Int32 skillID, Int32 damageType, Int32 damage)
 	{
+        // Tmp:  Simulate skill casting
+        if(!attacker.isPlayer())
+        {
+
+        }
 	}
 	
 	public void otherAvatarOnJump(KBEngine.Entity entity)

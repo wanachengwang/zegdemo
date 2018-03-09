@@ -84,7 +84,7 @@ public class UI : MonoBehaviour
 	
 	void onSelAvatarUI()
 	{
-		if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 40, 200, 30), "RemoveAvatar(删除角色)"))    
+		if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 100, 200, 40), "RemoveAvatar(删除角色)"))    
         {
 			if(selAvatarDBID == 0)
 			{
@@ -102,12 +102,12 @@ public class UI : MonoBehaviour
 			}
         }
 
-		if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 75, 200, 30), "CreateAvatar(创建角色)"))    
+		if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 150, 200, 40), "CreateAvatar(创建角色)"))    
 		{
 			startCreateAvatar = !startCreateAvatar;
 		}
 
-        if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 110, 200, 30), "EnterGame(进入游戏)"))    
+        if (startCreateAvatar == false && GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 200, 200, 40), "EnterGame(进入游戏)"))    
         {
         	if(selAvatarDBID == 0)
         	{
@@ -122,8 +122,9 @@ public class UI : MonoBehaviour
 				ui_state = 2;
 			}
         }
+#if false
         // MyCode
-        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 145, 200, 30), "消息测试(TEST)")) {
+        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 145, 200, 40), "消息测试(TEST)")) {
             if (KBEngineApp.app.entity_type == "Account") {
                 KBEngine.Account account = (KBEngine.Account)KBEngineApp.app.player();
                 if (account != null) {
@@ -131,10 +132,11 @@ public class UI : MonoBehaviour
                 }
             }
         }
+#endif
 
         if (startCreateAvatar)
 		{
-	        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 40, 200, 30), "CreateAvatar-OK(创建完成)"))    
+	        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height - 80, 200, 40), "CreateAvatar-OK(创建完成)"))    
 	        {
 	        	if(stringAvatarName.Length > 1)
 	        	{
@@ -147,7 +149,7 @@ public class UI : MonoBehaviour
 				}
 	        }
 	        
-	        stringAvatarName = GUI.TextField(new Rect(Screen.width / 2 - 100, Screen.height - 75, 200, 30), stringAvatarName, 20);
+	        stringAvatarName = GUI.TextField(new Rect(Screen.width / 2 - 100, Screen.height - 130, 200, 40), stringAvatarName, 20);
 		}
 		
 		if(ui_avatarList != null && ui_avatarList.Count > 0)
@@ -169,7 +171,7 @@ public class UI : MonoBehaviour
 					GUI.contentColor = Color.red;
 				}
 				
-				if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 120 - 35 * idx, 200, 30), name))    
+				if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 45 * idx, 200, 40), name))    
 				{
 					Debug.Log("selAvatar:" + name);
 					selAvatarDBID = idbid;
@@ -191,7 +193,7 @@ public class UI : MonoBehaviour
 	
 	void onLoginUI()
 	{
-		if(GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 30, 200, 30), "Login(登陆)"))  
+		if(GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 30, 200, 40), "Login(登陆)"))  
         {  
         	Debug.Log("stringAccount:" + stringAccount);
         	Debug.Log("stringPasswd:" + stringPasswd);
@@ -206,7 +208,7 @@ public class UI : MonoBehaviour
 			}
         }
 
-        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 70, 200, 30), "CreateAccount(注册账号)"))  
+        if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 + 80, 200, 40), "CreateAccount(注册账号)"))  
         {  
 			Debug.Log("stringAccount:" + stringAccount);
 			Debug.Log("stringPasswd:" + stringPasswd);
@@ -221,11 +223,10 @@ public class UI : MonoBehaviour
 			}
         }
         
-		stringAccount = GUI.TextField(new Rect (Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 30), stringAccount, 20);
-		stringPasswd = GUI.PasswordField(new Rect (Screen.width / 2 - 100, Screen.height / 2 - 10, 200, 30), stringPasswd, '*');
+		stringAccount = GUI.TextField(new Rect (Screen.width / 2 - 100, Screen.height / 2 - 70, 200, 40), stringAccount, 20);
+		stringPasswd = GUI.PasswordField(new Rect (Screen.width / 2 - 100, Screen.height / 2 - 20, 200, 40), stringPasswd, '*');
 	}
 
-    string strSpaceId = "spaceId";
     void onWorldUI()
 	{
 		if(showReliveGUI)
@@ -235,26 +236,6 @@ public class UI : MonoBehaviour
 				KBEngine.Event.fireIn("relive", (Byte)1);		        	
 			}
 		}
-        
-        strSpaceId = GUI.TextField(new Rect(80, 130, 45, 24), strSpaceId);
-        if (GUI.Button(new Rect(130, 130, 60, 24), "传送")) {
-            byte spaceId;
-            if(byte.TryParse(strSpaceId, out spaceId)) {
-                KBEngine.Avatar avatar = (KBEngine.Avatar)KBEngineApp.app.player();
-                if(avatar != null) {
-                    avatar.teleport(spaceId);
-                }
-            }
-        }
-
-        UnityEngine.GameObject obj = UnityEngine.GameObject.Find("player(Clone)");
-        if (obj != null)
-        {
-            GUI.Label(new Rect(240, 20, 400, 100), "id=" + KBEngineApp.app.entity_id + ", position=" + obj.transform.position.ToString());
-            if (GUI.Button(new Rect(80, 160, 100, 24), "技能0"))
-            {
-            }
-        }
     }
 
     void OnGUI()  

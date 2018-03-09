@@ -7,13 +7,18 @@ function Awake () {
 
 // Update is called once per frame
 function Update () {
-	// Get the input vector from keyboard or analog stick
+	///var stat : Status = GetComponent(Status);
+	///if(stat.freeze){
+	///	motor.inputMoveDirection = Vector3(0,0,0);
+	///	return;
+	///}
+	// Get the input vector from kayboard or analog stick
 	var directionVector = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
 	
 	if (directionVector != Vector3.zero) {
 		// Get the length of the directon vector and then normalize it
 		// Dividing by the length is cheaper than normalizing when we already have the length anyway
-		var directionLength = directionVector.magnitude;
+		var directionLength : float = directionVector.magnitude;
 		directionVector = directionVector / directionLength;
 		
 		// Make sure the length is no bigger than 1
