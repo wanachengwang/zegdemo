@@ -13,6 +13,9 @@ public class World : MonoBehaviour
 	
 	private UnityEngine.GameObject player = null;
 	public UnityEngine.GameObject entityPerfab;
+    public UnityEngine.GameObject npcPrefab;
+    public UnityEngine.GameObject monsterPrefab;
+    public UnityEngine.GameObject proxyPrefab;
 	public UnityEngine.GameObject avatarPerfab;
 	
 	void Awake() 
@@ -182,9 +185,20 @@ public class World : MonoBehaviour
 		if(entity.isOnGround)
 			y = 1.3f;
 		
-		entity.renderObj = Instantiate(entityPerfab, new Vector3(entity.position.x, y, entity.position.z), 
-			Quaternion.Euler(new Vector3(entity.direction.y, entity.direction.z, entity.direction.x))) as UnityEngine.GameObject;
-
+        switch(entity.className)
+        {
+            case "Avatar":
+                entity.renderObj = Instantiate(proxyPrefab, new Vector3(entity.position.x, y, entity.position.z),
+                    Quaternion.Euler(new Vector3(entity.direction.y, entity.direction.z, entity.direction.x))) as UnityEngine.GameObject;
+                break;
+            case "Npc":
+            case "Monster":
+            case "Gate":
+            default:
+		        entity.renderObj = Instantiate(entityPerfab, new Vector3(entity.position.x, y, entity.position.z), 
+			        Quaternion.Euler(new Vector3(entity.direction.y, entity.direction.z, entity.direction.x))) as UnityEngine.GameObject;
+                break;
+        }
 		((UnityEngine.GameObject)entity.renderObj).name = entity.className + "_" + entity.id;
 	}
 	
@@ -322,7 +336,9 @@ public class World : MonoBehaviour
         // Tmp:  Simulate skill casting
         if(!attacker.isPlayer())
         {
-
+            GameEntity eCaster = ((UnityEngine.GameObject)attacker.renderObj).GetComponent<GameEntity>();
+            GameEntity eTarget = ((UnityEngine.GameObject)entity.renderObj).GetComponent<GameEntity>();
+            StartCoroutine(Combat.CastFireball(eCaster, eTarget, player.GetComponent<PlayerCtrl>()._coolTimeFireball));
         }
 	}
 	

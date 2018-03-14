@@ -22,12 +22,14 @@ public class PlayerCtrl : MonoBehaviour {
         EasyJoystick.On_JoystickMoveStart += OnJoystickMoveStart;
         EasyJoystick.On_JoystickMove += OnJoystickMove;
         EasyJoystick.On_JoystickMoveEnd += OnJoystickMove;
+        EasyButton.On_ButtonDown += OnButtonDown;
     }
     void OnDisable()
     {
         EasyJoystick.On_JoystickMoveStart -= OnJoystickMoveStart;
         EasyJoystick.On_JoystickMove -= OnJoystickMove;
         EasyJoystick.On_JoystickMoveEnd -= OnJoystickMove;
+        EasyButton.On_ButtonDown -= OnButtonDown;
     }
 
     // Method2: Use Physics.RayCast
@@ -73,16 +75,7 @@ public class PlayerCtrl : MonoBehaviour {
         if (obj != null)
         {
             GUI.Label(new Rect(240, 20, 400, 100), "id=" + KBEngineApp.app.entity_id + ", position=" + obj.transform.position.ToString());
-            if (GUI.Button(new Rect(Screen.width - 160, Screen.height - 260, 100, 80), "技能0") && _coolTime <= 0.0f)
-            {
-                Attack0();
-            }
-            else if (GUI.Button(new Rect(Screen.width - 160, Screen.height - 160, 100, 80), "技能1") && _coolTime <= 0.0f)
-            {
-                Attack1();
-            }
-
-            Camera.main.fieldOfView = GUI.VerticalSlider(new Rect(Screen.width - 80, 20, 100, 400), Camera.main.fieldOfView, 90.0f, 10.0f);
+            Camera.main.fieldOfView = GUI.VerticalSlider(new Rect(Screen.width - 140, 20, 100, 400), Camera.main.fieldOfView, 90.0f, 10.0f);
         }
     }
 
@@ -121,6 +114,22 @@ public class PlayerCtrl : MonoBehaviour {
             }
         }
 #endif
+    }
+
+    void OnButtonDown(string buttonName)
+    {
+        if (_coolTime > 0.0f)
+            return;
+
+        switch(buttonName)
+        {
+            case "Btn0":
+                Attack0();
+                break;
+            case "Btn1":
+                Attack1();
+                break;
+        }
     }
 
     void OnJoystickMoveStart(MovingJoystick move)
@@ -213,12 +222,8 @@ public class PlayerCtrl : MonoBehaviour {
             RunToPos(_target.transform.position);
             yield return 0;
         }
-        GetComponent<CharacterMotorC>().inputMoveDirection = Vector3.zero;
-        _graphics.GetComponent<Animation>().CrossFade("cast");
         _coolTime = _coolTimeFireball;
-        yield return new WaitForSeconds(_coolTime);
-        Combat.CastFireball(_attackPt.transform.position, _graphics.transform.forward, _target!=null ? _target.gameObject : null);
-        _graphics.GetComponent<Animation>().CrossFade("idle");
+        yield return StartCoroutine(Combat.CastFireball(GetComponent<GameEntity>(), _target, _coolTime));
     }
     private void Attack1()
     {

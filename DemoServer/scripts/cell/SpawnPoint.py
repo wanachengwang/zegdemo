@@ -28,7 +28,7 @@ class SpawnPoint(KBEngine.Entity, GameObject):
 			"name" : datas["name"],
 			"descr" : datas.get("descr", ''),
 		}
-		INFO_MSG('SpawnPoint:createEntity:No:%i, Type:%s, Space:%i' % (self.spawnEntityNO, datas["entityType"], self.spaceID))		
+		
 		e = KBEngine.createEntity(datas["entityType"], self.spaceID, tuple(self.position), tuple(self.direction), params)
 
 	#--------------------------------------------------------------------------------------------

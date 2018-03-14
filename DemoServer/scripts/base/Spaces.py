@@ -8,19 +8,19 @@ from KBEDebug import *
 from SpaceAlloc import *
 from interfaces.GameObject import GameObject
 
-class Spaces(KBEngine.Base, GameObject):
+class Spaces(KBEngine.Entity, GameObject):
 	"""
 	这是一个脚本层封装的空间管理器
 	KBEngine的space是一个抽象空间的概念，一个空间可以被脚本层视为游戏场景、游戏房间、甚至是一个宇宙。
 	"""
 	def __init__(self):
-		KBEngine.Base.__init__(self)
+		KBEngine.Entity.__init__(self)
 		GameObject.__init__(self)
 		
 		# 初始化空间分配器
 		self.initAlloc()
 		
-		# 向全局共享数据中注册这个管理器的mailbox以便在所有逻辑进程中可以方便的访问
+		# 向全局共享数据中注册这个管理器的entityCall以便在所有逻辑进程中可以方便的访问
 		KBEngine.globalData["Spaces"] = self
 	
 	def initAlloc(self):
@@ -31,7 +31,6 @@ class Spaces(KBEngine.Base, GameObject):
 		self._tmpDatas = list(d_spaces.datas.keys())
 		for utype in self._tmpDatas:
 			spaceData = d_spaces.datas.get(utype)
-			INFO_MSG('Spaces:initAlloc:utype:%i, %s' % (utype, spaceData["name"]))		
 			if spaceData["entityType"] == "SpaceDuplicate":
 				self._spaceAllocs[utype] = SpaceAllocDuplicate(utype)
 			else:
@@ -46,8 +45,6 @@ class Spaces(KBEngine.Base, GameObject):
 		"""
 		if len(self._tmpDatas) > 0:
 			spaceUType = self._tmpDatas.pop(0)
-			spaceData = d_spaces.datas.get(spaceUType)
-			INFO_MSG('Spaces:createSpaceOnTimer:utype:%i, %s' % (spaceUType, spaceData["name"]))		
 			self._spaceAllocs[spaceUType].init()
 			
 		if len(self._tmpDatas) <= 0:
@@ -71,12 +68,12 @@ class Spaces(KBEngine.Base, GameObject):
 			if space:
 				space.logoutSpace(avatarID)
 				
-	def teleportSpace(self, entityMailbox, spaceUType, position, direction, context):
+	def teleportSpace(self, entityCall, spaceUType, position, direction, context):
 		"""
 		defined method.
 		请求进入某个space中
 		"""
-		self._spaceAllocs[spaceUType].teleportSpace(entityMailbox, position, direction, context)
+		self._spaceAllocs[spaceUType].teleportSpace(entityCall, position, direction, context)
 
 	#--------------------------------------------------------------------------------------------
 	#                              Callbacks
@@ -99,10 +96,10 @@ class Spaces(KBEngine.Base, GameObject):
 		"""
 		self._spaceAllocs[spaceUType].onSpaceLoseCell(spaceKey)
 		
-	def onSpaceGetCell(self, spaceUType, spaceMailbox, spaceKey):
+	def onSpaceGetCell(self, spaceUType, spaceEntityCall, spaceKey):
 		"""
 		defined method.
 		space的cell创建好了
 		"""
-		self._spaceAllocs[spaceUType].onSpaceGetCell(spaceMailbox, spaceKey)
+		self._spaceAllocs[spaceUType].onSpaceGetCell(spaceEntityCall, spaceKey)
 

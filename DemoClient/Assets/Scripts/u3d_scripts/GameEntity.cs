@@ -44,6 +44,18 @@ public class GameEntity : MonoBehaviour
 	
 	public bool entityEnabled = true;
 
+    public Transform graphics;
+
+    public static int GetEntityID(UnityEngine.GameObject entity)
+    {
+        string[] s = entity.name.Split(new char[] { '_' });
+        if (s.Length > 0)
+        {
+            return Convert.ToInt32(s[s.Length - 1]);
+        }
+        return -1;
+    }
+
 	void Awake ()   
 	{
 	}
@@ -51,11 +63,13 @@ public class GameEntity : MonoBehaviour
 	void Start() 
 	{
 		characterController = ((UnityEngine.GameObject)gameObject).GetComponent<CharacterController>();
-	}
+        graphics = gameObject.transform.Find("Graphics");
+
+    }
 	
 	void OnGUI()
 	{
-		if(!gameObject.transform.Find ("Graphics").GetComponent<Renderer>().isVisible)
+		if(!graphics.GetComponent<Renderer>().isVisible)
 			return;
 		
 		Vector3 worldPosition = new Vector3 (transform.position.x , transform.position.y + npcHeight, transform.position.z);

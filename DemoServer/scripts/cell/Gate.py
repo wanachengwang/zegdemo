@@ -55,6 +55,7 @@ class Gate(KBEngine.Entity, GameObject):
 		gotoSpaceUType = GlobalConst.g_gateMaps.get(self.uid, 1)
 		spaceData = d_spaces.datas.get(gotoSpaceUType)
 		entityEntering.teleportSpace(gotoSpaceUType, spaceData["spawnPos"], tuple(self.direction), {})
+		
 		"""
 		if self.uid == 40001003: # currspace - teleport
 			spaceData = d_spaces.datas.get(entityEntering.spaceUType)

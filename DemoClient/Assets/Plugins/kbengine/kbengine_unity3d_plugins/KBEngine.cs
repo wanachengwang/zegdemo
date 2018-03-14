@@ -4,7 +4,6 @@
 	using System; 
 	using System.Collections; 
 	using System.Collections.Generic;
-    using System.IO;
 	using System.Text;
     using System.Threading;
 	using System.Text.RegularExpressions;
@@ -87,7 +86,7 @@
 		
 		// 服务端与客户端的版本号以及协议MD5
 		public string serverVersion = "";
-		public string clientVersion = "1.1.0";
+		public string clientVersion = "1.1.5";
 		public string serverScriptVersion = "";
 		public string clientScriptVersion = "0.1.0";
 		public string serverProtocolMD5 = "";
@@ -115,7 +114,7 @@
 		// https://github.com/kbengine/kbengine/tree/master/docs/api
 		public Dictionary<Int32, Entity> entities = new Dictionary<Int32, Entity>();
 		
-		// 在玩家AOI范围小于256个实体时我们可以通过一字节索引来找到entity
+		// 在玩家View范围小于256个实体时我们可以通过一字节索引来找到entity
 		private List<Int32> _entityIDAliasIDList = new List<Int32>();
 		private Dictionary<Int32, MemoryStream> _bufferedCreateEntityMessage = new Dictionary<Int32, MemoryStream>(); 
 		
@@ -325,7 +324,7 @@
 			// 更新玩家的位置与朝向到服务端
 			updatePlayerToServer();
 			
-			if(span.Seconds > 15)
+			if(span.Seconds > _args.serverHeartbeatTick)
 			{
 				span = _lastTickCBTime - _lastTickTime;
 				
@@ -486,8 +485,9 @@
 				e.descr = System.Text.Encoding.UTF8.GetString(stream.readBlob());
 				
 				serverErrs.Add(e.id, e);
-                //Dbg.DEBUG_MSG("Client_onImportServerErrorsDescr: id=" + e.id + ", name=" + e.name + ", descr=" + e.descr);
-            }
+					
+				//Dbg.DEBUG_MSG("Client_onImportServerErrorsDescr: id=" + e.id + ", name=" + e.name + ", descr=" + e.descr);
+			}
 		}
 		
 		/*
@@ -1083,7 +1083,7 @@
 				_persistentInfos.onImportClientMessages(currserver, datas);
 		}
 
-        public void onImportClientMessages(MemoryStream stream)
+		public void onImportClientMessages(MemoryStream stream)
 		{
 			UInt16 msgcount = stream.readUint16();
 			
@@ -1108,7 +1108,6 @@
 				
 				System.Reflection.MethodInfo handler = null;
 				bool isClientMethod = msgname.Contains("Client_");
-                //Dbg.CUSTOM_MSG(currserver + "ImportClientMessages: " + msgname);
 				
 				if(isClientMethod)
 				{
@@ -1420,7 +1419,7 @@
 		*/
 		public void Client_onCreatedProxies(UInt64 rndUUID, Int32 eid, string entityType)
 		{
-			Dbg.CUSTOM_MSG("[Client_onCreatedProxies]: eid(" + eid + "), entityType(" + entityType + ")!");
+			Dbg.DEBUG_MSG("KBEngine::Client_onCreatedProxies: eid(" + eid + "), entityType(" + entityType + ")!");
 			
 			entity_uuid = rndUUID;
 			entity_id = eid;
@@ -1443,10 +1442,10 @@
 				entity.id = eid;
 				entity.className = entityType;
 				
-				entity.baseMailbox = new Mailbox();
-				entity.baseMailbox.id = eid;
-				entity.baseMailbox.className = entityType;
-				entity.baseMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_BASE;
+				entity.baseEntityCall = new EntityCall();
+				entity.baseEntityCall.id = eid;
+				entity.baseEntityCall.className = entityType;
+				entity.baseEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_BASE;
 
 				entities[eid] = entity;
 				
@@ -1493,9 +1492,9 @@
 		}
 
 		/*
-			通过流数据获得AOI实体的ID
+			通过流数据获得View实体的ID
 		*/
-		public Int32 getAoiEntityIDFromStream(MemoryStream stream)
+		public Int32 getViewEntityIDFromStream(MemoryStream stream)
 		{
 			if (!_args.useAliasEntityID)
 				return stream.readInt32();
@@ -1526,7 +1525,7 @@
 		*/
 		public void Client_onUpdatePropertysOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			onUpdatePropertys_(eid, stream);
 		}
 		
@@ -1545,7 +1544,6 @@
 			
 			if(!entities.TryGetValue(eid, out entity))
 			{
-                Dbg.CUSTOM_MSG("[Client_onUpdatePropertys]:" + eid);
 				MemoryStream entityMessage = null;
 				if(_bufferedCreateEntityMessage.TryGetValue(eid, out entityMessage))
 				{
@@ -1560,8 +1558,8 @@
 				_bufferedCreateEntityMessage[eid] = stream1;
 				return;
 			}
-            Dbg.CUSTOM_MSG("[Client_onUpdatePropertys]:" + eid + entity.className);
-            ScriptModule sm = EntityDef.moduledefs[entity.className];
+			
+			ScriptModule sm = EntityDef.moduledefs[entity.className];
 			Dictionary<UInt16, Property> pdatas = sm.idpropertys;
 
 			while(stream.length() > 0)
@@ -1609,7 +1607,7 @@
 		*/
 		public void Client_onRemoteMethodCallOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			onRemoteMethodCall_(eid, stream);
 		}
 		
@@ -1668,7 +1666,7 @@
 		}
 
 		/*
-			服务端通知一个实体进入了世界(如果实体是当前玩家则玩家第一次在一个space中创建了， 如果是其他实体则是其他实体进入了玩家的AOI)
+			服务端通知一个实体进入了世界(如果实体是当前玩家则玩家第一次在一个space中创建了， 如果是其他实体则是其他实体进入了玩家的View)
 		*/
 		public void Client_onEntityEnterWorld(MemoryStream stream)
 		{
@@ -1688,9 +1686,9 @@
 				isOnGround = stream.readInt8();
 			
 			string entityType = EntityDef.idmoduledefs[uentityType].name;
-            Dbg.CUSTOM_MSG("[Client_onEntityEnterWorld]:" + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
-            
-            Entity entity = null;
+			// Dbg.DEBUG_MSG("KBEngine::Client_onEntityEnterWorld: " + entityType + "(" + eid + "), spaceID(" + KBEngineApp.app.spaceID + ")!");
+			
+			Entity entity = null;
 			
 			if(!entities.TryGetValue(eid, out entity))
 			{
@@ -1715,10 +1713,10 @@
 				entity.id = eid;
 				entity.className = entityType;
 				
-				entity.cellMailbox = new Mailbox();
-				entity.cellMailbox.id = eid;
-				entity.cellMailbox.className = entityType;
-				entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
+				entity.cellEntityCall = new EntityCall();
+				entity.cellEntityCall.id = eid;
+				entity.cellEntityCall.className = entityType;
+				entity.cellEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_CELL;
 				
 				entities[eid] = entity;
 				
@@ -1749,10 +1747,10 @@
 					clearEntities(false);
 					entities[entity.id] = entity;
 				
-					entity.cellMailbox = new Mailbox();
-					entity.cellMailbox.id = eid;
-					entity.cellMailbox.className = entityType;
-					entity.cellMailbox.type = Mailbox.MAILBOX_TYPE.MAILBOX_TYPE_CELL;
+					entity.cellEntityCall = new EntityCall();
+					entity.cellEntityCall.id = eid;
+					entity.cellEntityCall.className = entityType;
+					entity.cellEntityCall.type = EntityCall.ENTITYCALL_TYPE.ENTITYCALL_TYPE_CELL;
 					
 					entity.set_direction(entity.getDefinedProperty("direction"));
 					entity.set_position(entity.getDefinedProperty("position"));					
@@ -1769,16 +1767,16 @@
 		}
 
 		/*
-			服务端使用优化的方式通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的AOI)
+			服务端使用优化的方式通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的View)
 		*/
 		public void Client_onEntityLeaveWorldOptimized(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			KBEngineApp.app.Client_onEntityLeaveWorld(eid);
 		}
 
 		/*
-			服务端通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的AOI)
+			服务端通知一个实体离开了世界(如果实体是当前玩家则玩家离开了space， 如果是其他实体则是其他实体离开了玩家的View)
 		*/
 		public void Client_onEntityLeaveWorld(Int32 eid)
 		{
@@ -1796,7 +1794,7 @@
 			if(entity_id == eid)
 			{
 				clearSpace(false);
-				entity.cellMailbox = null;
+				entity.cellEntityCall = null;
 			}
 			else
 			{
@@ -1829,8 +1827,8 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onEntityEnterSpace: entity(" + eid + ") not found!");
 				return;
 			}
-            Dbg.CUSTOM_MSG("[Client_onEntityEnterSpace]: " + eid + entity.className);
-            entity.isOnGround = isOnGround > 0;
+			
+			entity.isOnGround = isOnGround > 0;
 			_entityServerPos = entity.position;
 			entity.enterSpace();
 		}
@@ -2095,7 +2093,7 @@
 				Client_setSpaceData(spaceID, key, val);
 			}
 			
-			Dbg.CUSTOM_MSG("[Client_initSpaceData]: spaceID(" + spaceID + "), size(" + _spacedatas.Count + ")!");
+			Dbg.DEBUG_MSG("KBEngine::Client_initSpaceData: spaceID(" + spaceID + "), size(" + _spacedatas.Count + ")!");
 		}
 
 		/*
@@ -2148,7 +2146,7 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onEntityDestroyed: entity(" + eid + ") not found!");
 				return;
 			}
-            Dbg.CUSTOM_MSG("[Client_onEntityDestroyed]:"+ eid + entity.className);
+			
 			if(entity.inWorld)
 			{
 				if(entity_id == eid)
@@ -2215,7 +2213,7 @@
 
 		public void Client_onUpdateData(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			Entity entity = null;
 			
 			if(!entities.TryGetValue(eid, out entity))
@@ -2239,8 +2237,8 @@
 				Dbg.ERROR_MSG("KBEngine::Client_onSetEntityPosAndDir: entity(" + eid + ") not found!");
 				return;
 			}
-            Dbg.CUSTOM_MSG("[Client_onSetEntityPosAndDir]: " + eid + entity.className);
-            entity.position.x = stream.readFloat();
+			
+			entity.position.x = stream.readFloat();
 			entity.position.y = stream.readFloat();
 			entity.position.z = stream.readFloat();
 			
@@ -2273,7 +2271,7 @@
 		
 		public void Client_onUpdateData_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
@@ -2284,7 +2282,7 @@
 		
 		public void Client_onUpdateData_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte p = stream.readInt8();
@@ -2294,7 +2292,7 @@
 		
 		public void Client_onUpdateData_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			SByte r = stream.readInt8();
@@ -2304,7 +2302,7 @@
 		
 		public void Client_onUpdateData_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte p = stream.readInt8();
 			SByte r = stream.readInt8();
@@ -2314,7 +2312,7 @@
 		
 		public void Client_onUpdateData_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte y = stream.readInt8();
 			
@@ -2323,7 +2321,7 @@
 		
 		public void Client_onUpdateData_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte p = stream.readInt8();
 			
@@ -2332,7 +2330,7 @@
 		
 		public void Client_onUpdateData_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			SByte r = stream.readInt8();
 			
@@ -2341,7 +2339,7 @@
 		
 		public void Client_onUpdateData_xz(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			
@@ -2350,7 +2348,7 @@
 		
 		public void Client_onUpdateData_xz_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2363,7 +2361,7 @@
 		
 		public void Client_onUpdateData_xz_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2375,7 +2373,7 @@
 		
 		public void Client_onUpdateData_xz_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2387,7 +2385,7 @@
 		
 		public void Client_onUpdateData_xz_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2399,7 +2397,7 @@
 		
 		public void Client_onUpdateData_xz_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			Vector2 xz = stream.readPackXZ();
 			SByte yaw = stream.readInt8();
 			_updateVolatileData(eid, xz[0], KBEDATATYPE_BASE.KBE_FLT_MAX, xz[1], yaw, KBEDATATYPE_BASE.KBE_FLT_MAX, KBEDATATYPE_BASE.KBE_FLT_MAX, 1);
@@ -2407,7 +2405,7 @@
 		
 		public void Client_onUpdateData_xz_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2418,7 +2416,7 @@
 		
 		public void Client_onUpdateData_xz_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 	
@@ -2429,7 +2427,7 @@
 		
 		public void Client_onUpdateData_xyz(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2439,7 +2437,7 @@
 		
 		public void Client_onUpdateData_xyz_ypr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2453,7 +2451,7 @@
 		
 		public void Client_onUpdateData_xyz_yp(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2466,7 +2464,7 @@
 		
 		public void Client_onUpdateData_xyz_yr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2479,7 +2477,7 @@
 		
 		public void Client_onUpdateData_xyz_pr(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2492,7 +2490,7 @@
 		
 		public void Client_onUpdateData_xyz_y(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2503,7 +2501,7 @@
 		
 		public void Client_onUpdateData_xyz_p(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2515,7 +2513,7 @@
 		
 		public void Client_onUpdateData_xyz_r(MemoryStream stream)
 		{
-			Int32 eid = getAoiEntityIDFromStream(stream);
+			Int32 eid = getViewEntityIDFromStream(stream);
 			
 			Vector2 xz = stream.readPackXZ();
 			float y = stream.readPackY();
@@ -2595,14 +2593,19 @@
 		*/
 		public void Client_onStreamDataStarted(Int16 id, UInt32 datasize, string descr)
 		{
+			Event.fireOut("onStreamDataStarted", new object[]{id, datasize, descr});
 		}
 		
 		public void Client_onStreamDataRecv(MemoryStream stream)
 		{
+			Int16 resID = stream.readInt16();
+			byte[] datas = stream.readBlob();
+			Event.fireOut("onStreamDataRecv", new object[]{resID, datas});
 		}
 		
 		public void Client_onStreamDataCompleted(Int16 id)
 		{
+			Event.fireOut("onStreamDataCompleted", new object[]{id});
 		}
 	}
 	

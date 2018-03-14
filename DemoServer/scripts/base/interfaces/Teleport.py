@@ -22,14 +22,13 @@ class Teleport:
 	#--------------------------------------------------------------------------------------------
 	#                              Callbacks
 	#--------------------------------------------------------------------------------------------
-	def onEntitiesEnabled(self):
+	def onClientEnabled(self):
 		"""
 		KBEngine method.
 		该entity被正式激活为可使用， 此时entity已经建立了client对应实体， 可以在此创建它的
 		cell部分。
 		"""
 		if self.cell is not None:
-			INFO_MSG('Teleport:CELL EXIST:utype:%i, type:%s' % (self.spaceUTypeB, self.getScriptName()))	
 			return 
 
 		# 防止使用同一个号登陆不同的demo造成无法找到匹配的地图从而无法加载资源导致无法进入游戏
@@ -45,7 +44,7 @@ class Teleport:
 					self.spaceUTypeB = spaceUType
 					self.cellData["spaceUType"] = spaceUType
 					self.cellData["position"] = spacedatas.get("spawnPos", (0,0,0))
-		INFO_MSG('Teleport:loginToSpace:utype:%i, type:%s' % (self.spaceUTypeB, self.getScriptName()))	
+		
 		KBEngine.globalData["Spaces"].loginToSpace(self, self.spaceUTypeB, {})
 
 

@@ -31,12 +31,19 @@ public class UI : MonoBehaviour
 	 {
 		inst = this;
 		DontDestroyOnLoad(transform.gameObject);
-	 }
-	 
-	// Use this for initialization
-	void Start () 
+    }
+
+    // Use this for initialization
+    void Start () 
 	{
-		installEvents();
+#if UNITY_EDITOR
+        stringAccount = "tst000";
+        stringPasswd = "tst000";
+#else
+        stringAccount = "tst001";
+        stringPasswd = "tst001";
+#endif
+        installEvents();
 		UnityEngine.SceneManagement.SceneManager.LoadScene("login");
 	}
 

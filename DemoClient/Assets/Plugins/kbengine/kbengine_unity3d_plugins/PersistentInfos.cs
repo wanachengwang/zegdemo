@@ -68,10 +68,10 @@ namespace KBEngine
 				try
 				{
 					if(!KBEngineApp.app.importMessagesFromMemoryStream (loginapp_onImportClientMessages, 
-							baseapp_onImportClientMessages, onImportClientEntityDef, onImportServerErrorsDescr)) {
+							baseapp_onImportClientMessages, onImportClientEntityDef, onImportServerErrorsDescr))
+						
 						clearMessageFiles();
 						return false;
-                    }
 				}
 				catch(Exception e)
 				{

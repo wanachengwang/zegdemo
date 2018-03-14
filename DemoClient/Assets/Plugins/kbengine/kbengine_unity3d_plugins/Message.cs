@@ -75,7 +75,7 @@
 			handler = msghandler;
 			argsType = argstype;
 			
-			// 对该消息的所有参数绑定反序列化方法，改方法能够将二进制流转化为参数需要的值
+			// 对该消息的所有参数绑定反序列化方法，该方法能够将二进制流转化为参数需要的值
 			// 在服务端下发消息数据时会用到
 			argtypes = new KBEDATATYPE_BASE[msgargtypes.Count];
 			for(int i=0; i<msgargtypes.Count; i++)
@@ -114,7 +114,6 @@
 		*/
 		public void handleMessage(MemoryStream msgstream)
 		{
-            Dbg.CUSTOM_MSG("[MsgRecv]:"+KBEngineApp.app.currserver + ": " + name + ":" + handler);
 			if(argtypes.Length <= 0)
 			{
 				if(argsType < 0)

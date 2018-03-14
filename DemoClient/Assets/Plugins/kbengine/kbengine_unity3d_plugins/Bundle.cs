@@ -95,7 +95,6 @@
 		
 		public void send(NetworkInterface networkInterface)
 		{
-            Dbg.CUSTOM_MSG("[MsgSend]:"+KBEngineApp.app.currserver + ":" + this.msgtype.name + ":" + this.msgtype.handler);
 			fini(true);
 			
 			if(networkInterface.valid())
