@@ -70,7 +70,7 @@ def onReadyForLogin(isBootstrap):
 	if count < total:
 		v = float(count) / total
 		# INFO_MSG('initProgress: %f' % v)
-		return v;
+		return v
 	
 	INFO_MSG('initProgress: completed!')
 	return 1.0

@@ -60,12 +60,9 @@
 			<default>
 				<!-- <host> localhost </host> -->
 				<!-- <databaseName> kbe </databaseName> -->
+				<databaseName> PrjNewWorld </databaseName> 
 			</default>
 		</databaseInterfaces>
-		<!-- 数据库名称 
-			(Database name) overwrite the default value
-		-->
-		<databaseName> PrjNewWorld </databaseName> 
 	</dbmgr>
 	
 	<cellapp>

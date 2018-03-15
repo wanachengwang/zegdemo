@@ -30,6 +30,7 @@ class Space(KBEngine.Entity, GameObject):
 		
 		self.avatars = {}
 		self.createSpawnPointDatas()
+		self.writeToDB()
 		
 	def createSpawnPointDatas(self):
 		"""

@@ -22,6 +22,7 @@ class Spaces(KBEngine.Entity, GameObject):
 		
 		# 向全局共享数据中注册这个管理器的entityCall以便在所有逻辑进程中可以方便的访问
 		KBEngine.globalData["Spaces"] = self
+		self.writeToDB()
 	
 	def initAlloc(self):
 		# 注册一个定时器，在这个定时器中我们每个周期都创建出一些NPC，直到创建完所有
